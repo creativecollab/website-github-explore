@@ -23,10 +23,11 @@ export const Form = styled.form<FormProps>`
     padding-left: 20px;
     padding-right: 20px;
     height: 70px;
-    border: 0;
-    border-radius: 5px 0 0 5px;
 
+    border-radius: 5px 0 0 5px;
+    border: 0;
     border-color: 2px solid #fff;
+    border-right: 0;
 
     ${props =>
       props.hasError &&

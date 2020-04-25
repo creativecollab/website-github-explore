@@ -1,11 +1,10 @@
 import React, { useState, useEffect, FormEvent } from 'react';
-
+import { Link } from 'react-router-dom';
 import { FiChevronRight } from 'react-icons/fi';
 import { Title, Form, Repositories, Error } from './styles';
 import api from '../../Services/Api';
 
 import logo from '../../assets/logogithub.svg';
-import Repository from '../Repository';
 
 interface Repository {
   full_name: string;
@@ -76,18 +75,21 @@ const Dashboard: React.FC = () => {
       {inputErro && <Error>{inputErro}</Error>}
 
       <Repositories>
-        {repositories.map(reporitory => (
-          <a key={reporitory.full_name} href="/teste">
+        {repositories.map(repository => (
+          <Link
+            key={repository.full_name}
+            to={`/repositories/${repository.full_name}`}
+          >
             <article>
-              <img src={reporitory.owner.avatar_url} alt="Creative Collab" />
+              <img src={repository.owner.avatar_url} alt="bbb" />
               <div>
-                <h2>{reporitory.owner.login}</h2>
-                <p>{reporitory.description}</p>
+                <h2>{repository.owner.login}</h2>
+                <p>{repository.description}</p>
               </div>
 
               <FiChevronRight size={50} />
             </article>
-          </a>
+          </Link>
         ))}
       </Repositories>
     </>
