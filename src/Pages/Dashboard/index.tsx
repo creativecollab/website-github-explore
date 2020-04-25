@@ -1,7 +1,7 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 
 import { FiChevronRight } from 'react-icons/fi';
-import { Title, Form, Repositories } from './styles';
+import { Title, Form, Repositories, Error } from './styles';
 import api from '../../Services/Api';
 
 import logo from '../../assets/logogithub.svg';
@@ -18,17 +18,44 @@ interface Repository {
 
 const Dashboard: React.FC = () => {
   const [addRepo, setAddRepo] = useState('');
-  const [repositories, setRepositories] = useState<Repository[]>([]);
+  const [inputErro, setInputError] = useState('');
+  const [repositories, setRepositories] = useState<Repository[]>(() => {
+    const storageRepositories = localStorage.getItem(
+      '@GithubExplorer:repositories',
+    );
+
+    if (storageRepositories) {
+      return JSON.parse(storageRepositories);
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      '@GithubExplorer:repositories',
+      JSON.stringify(repositories),
+    );
+  }, [repositories]);
 
   async function handleRepository(
     e: FormEvent<HTMLFormElement>,
   ): Promise<void> {
     e.preventDefault();
-    const response = await api.get<Repository>(`/repos/${addRepo}`);
 
-    const repository = response.data;
-    setRepositories([...repositories, repository]);
-    setAddRepo('');
+    if (!addRepo) {
+      setInputError('Digite o nome do autor/repositorio');
+      return;
+    }
+
+    try {
+      const response = await api.get<Repository>(`/repos/${addRepo}`);
+      const repository = response.data;
+      setRepositories([...repositories, repository]);
+      setAddRepo('');
+      setInputError('');
+    } catch (error) {
+      setInputError('Erro na busca do repositorio :-/');
+    }
   }
 
   return (
@@ -36,7 +63,7 @@ const Dashboard: React.FC = () => {
       <img src={logo} alt="GitExplored" />
       <Title>Explore Repositorios no GITHUB</Title>
 
-      <Form onSubmit={handleRepository}>
+      <Form hasError={!!inputErro} onSubmit={handleRepository}>
         <input
           type="text"
           placeholder="Digite um Repositorio"
@@ -45,6 +72,8 @@ const Dashboard: React.FC = () => {
         />
         <button type="submit">Pesquisar</button>
       </Form>
+
+      {inputErro && <Error>{inputErro}</Error>}
 
       <Repositories>
         {repositories.map(reporitory => (
